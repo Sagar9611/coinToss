@@ -47,12 +47,13 @@
             transition: transform 1s;
         }
 
-        .heads {
-            transform: rotateY(0deg);
+        .flipping {
+            animation: flipping 1s infinite linear;
         }
 
-        .tails {
-            transform: rotateY(180deg);
+        @keyframes flipping {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
         }
 
         .flip-heads {
@@ -131,8 +132,7 @@
             <img src="https://cdn-icons-png.flaticon.com/512/2103/2103633.png" class="tails" alt="Tails">
         </div>
 
-        <button onclick="startToss()">Toss the Coin!</button>
-        
+        <button id="tossButton" onclick="startToss()">Toss the Coin!</button>
         <div id="result"></div>
     </div>
 
@@ -141,27 +141,37 @@
             const userChoice = document.querySelector('input[name="choice"]:checked').value;
             const resultDiv = document.getElementById('result');
             const coin = document.getElementById('coin');
+            const tossButton = document.getElementById('tossButton');
             
             // Disable button during animation
-            event.target.disabled = true;
+            tossButton.disabled = true;
+            tossButton.textContent = "Tossing...";
+            
+            // Show flipping animation
+            coin.classList.add('flipping');
             
             // Random result
-            const randomResult = Math.random() < 0.5 ? 'heads' : 'tails';
-            const isWinner = userChoice === randomResult;
-
-            // Add flip animation
-            coin.classList.add(randomResult === 'heads' ? 'flip-heads' : 'flip-tails');
-
             setTimeout(() => {
-                resultDiv.innerHTML = `
-                    Your choice: ${userChoice.toUpperCase()}<br>
-                    Result: ${randomResult.toUpperCase()}<br><br>
-                    ${isWinner ? '🎉 Congratulations! You WON! 🎉' : '😢 Better luck next time! 😢'}
-                `;
-                resultDiv.className = isWinner ? 'win' : 'lose';
-                event.target.disabled = false;
-                coin.classList.remove('flip-heads', 'flip-tails');
-            }, 1500);
+                const randomResult = Math.random() < 0.5 ? 'heads' : 'tails';
+                const isWinner = userChoice === randomResult;
+
+                // Remove flipping animation and apply result animation
+                coin.classList.remove('flipping');
+                coin.classList.add(randomResult === 'heads' ? 'flip-heads' : 'flip-tails');
+
+                setTimeout(() => {
+                    resultDiv.innerHTML = `
+                        Your choice: ${userChoice.toUpperCase()}<br>
+                        Result: ${randomResult.toUpperCase()}<br><br>
+                        ${isWinner ? '🎉 Congratulations! You WON! 🎉' : '😢 Better luck next time! 😢'}`;
+                    resultDiv.className = isWinner ? 'win' : 'lose';
+                    
+                    // Enable button and change text to "Toss Again"
+                    tossButton.disabled = false;
+                    tossButton.textContent = "Toss Again";
+                    coin.classList.remove('flip-heads', 'flip-tails');
+                }, 1500);
+            }, 1000);
         }
     </script>
 </body>
